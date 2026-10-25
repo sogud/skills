@@ -38,7 +38,7 @@ description: 开源前审查：扫描目标仓库的当前内容、完整 git �
   个人邮箱、手机号模式、真实姓名出现的位置（package.json author、注释、文档）
 - **公司内部**：内部域名（按用户环境定制，如 `*-corp.example`、`*.internal.example`、
   内网 IP 段 `10./172.16-31./192.168.`）、内部系统名、工号、内部 wiki/文档链接
-- **过程沉淀**：`.artifacts/`、调研笔记、竞品分析、临时快照、debug 日志、
+- **过程沉淀**：`data/`、调研笔记、竞品分析、临时快照、debug 日志、
   含内部上下文的 TODO/FIXME 注释、会话记录
 - **AI 协作残留**（AI 摸过的仓特色风险，传统扫描器不查）：handoff/交接文件
   （handoff.md 类）、会话记录与上下文导出、agent 工作目录（.claude/.codex/.pi/

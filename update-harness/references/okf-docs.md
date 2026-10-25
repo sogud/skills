@@ -12,7 +12,7 @@
 
 ## 内容边界
 
-- 知识 bundle：规则、架构、概念、仓库职责和已验证流程（agentspace 中 harness 手册位于 `knowledge/工作区/`）。
+- 知识 bundle：调研文章、参考知识和有长期价值的记录。AgentSpace 自身的规则、架构和操作说明全部在根 `AGENTS.md`，路径与 route 以 `manifest.json` 为准。
 - skill 目录：动作、参数约束和工作流；不保存事实正文的副本。
 - 结构化定义、生成物和可重建产物使用目标工作区已有的指定位置；不为它们在知识 bundle 创建副本。
 
