@@ -1,6 +1,6 @@
 ---
 name: mole
-description: "Drive the installed Mole CLI (`mo`) safely, including machine-readable status, analysis, history, and dry-run surfaces. Use before running `mo` on a user's Mac. Not for editing or reviewing Mole source code."
+description: "Diagnose full Mac disks, preview and perform authorized cleanup with Mole, and relocate developer caches or app data to external storage. Use for low disk space, accumulating caches, storage migration, or before running mo. Not for editing or reviewing Mole source code."
 ---
 
 # Using Mole from an agent
@@ -10,12 +10,43 @@ a real deletion tool operating on someone's live machine, so the way an agent
 uses it differs from the way a human does: never guess, never let a TUI decide,
 and never let a destructive command run without the user having seen the list.
 
+## Workflow
+
+1. **Inspect.** Check `mo --version`, relevant command help, and `df -h` for
+   the source and destination volumes. Start with `mo analyze --json "$HOME"`,
+   then inspect only the large relevant subdirectories. Put options before the
+   path: some installed versions launch the TUI for `mo analyze <path> --json`.
+   Report `partial` or `unavailable` scans as incomplete. A directory's logical
+   size, especially a mounted container or a symlink, is not proof of internal
+   disk usage. Do not add parent and child sizes together.
+2. **Classify.** Separate rebuildable caches, installed runtimes, persistent
+   app data, backups, and credentials. A directory called `cache` may contain
+   an active browser executable or an interpreter used by another process.
+3. **Preview cleanup.** Apply the rules below. Preserve existing whitelist
+   entries and the installed defaults when saving a custom whitelist. Check
+   both path aliases and resolved targets against active runtimes, browser
+   profiles, agent sessions, models, and container data. Native tool settings
+   can redirect cleanup outside the directory a wrapper checks; the whitelist
+   is not a filesystem sandbox. Regenerate the preview after protection or
+   configuration changes, and stop if protected data remains a candidate.
+4. **Relocate only when requested.** Read
+   [Storage relocation](references/storage-relocation.md) before moving caches,
+   configuring future writes, or moving an app's data. Cleanup permission does
+   not authorize arbitrary data migration or new startup/periodic tasks.
+5. **Verify and report.** Check actual free space again, then the affected
+   tool or app using isolated fixtures where possible. Distinguish **copied**,
+   **verified**, **app switched**, and **source retired**. An original still on
+   the source disk has not released that space. Report retained originals,
+   deferred active caches, restart requirements, and external-disk dependencies.
+   Stop when only trivial new caches remain; do not repeatedly sweep the Mac.
+
 ## The rules
 
-1. **Preview before you delete. Always.** Every destructive command takes
-   `--dry-run`. Run it, read the result, show the user what would go, and only
-   then offer the real run. An agent that runs `mo clean` before `mo clean
-   --dry-run` has skipped the only step the user can veto.
+1. **Preview before you delete. Always.** Check the installed command's help
+   and run its supported `--dry-run`. Read the result and show the user what
+   would go before offering the real run. If no usable preview is available,
+   stop rather than delete blindly. Running `mo clean` before `mo clean
+   --dry-run` skips the user's chance to exclude data.
 2. **The user runs the destructive command, not you**, unless they explicitly
    asked you to do it in the current turn. "Clean my Mac" is such an ask;
    "why is my disk full" is not.
@@ -33,12 +64,13 @@ and never let a destructive command run without the user having seen the list.
 
 | The user asks | Command |
 |---|---|
-| "What is eating my disk?" | `mo analyze --json` (whole disk) or `mo analyze <path> --json` |
+| "What is eating my disk?" | `mo analyze --json "$HOME"`, then `mo analyze --json <path>` |
 | "Free up space" | `mo clean --dry-run`, review, then `mo clean` |
 | "Remove this app completely" | `mo uninstall --dry-run` then `mo uninstall` |
 | "My Mac feels slow" / caches look broken | `mo optimize --dry-run` then `mo optimize` |
 | "Clean up my old projects" | `mo purge --dry-run` then `mo purge` |
 | "Get rid of downloaded installers" | `mo installer --dry-run` then `mo installer` |
+| "Move caches or app data to an external disk" | Read [Storage relocation](references/storage-relocation.md); use native settings, not `mo clean --external` |
 | "What did Mole delete?" | `mo history --json --limit 20` |
 | One CPU / memory / disk / network snapshot | `mo status --json` |
 | A short time series for diagnosis | `mo status --watch --interval 1s` (NDJSON; stop after enough samples) |
@@ -50,7 +82,8 @@ These four surfaces are the agent-facing API. Everything else is for humans.
 **Disk usage.** `mo analyze --json` prints one JSON object: `path`, `overview`,
 and `entries[]` of `{name, path, size, is_dir, insight}`. `size` is bytes.
 `insight: true` marks an entry Mole considers noteworthy (a large iOS backup, a
-runaway cache). Pass a path to scope it: `mo analyze ~/Library --json`.
+runaway cache). Pass a path to scope it: `mo analyze --json "$HOME/Library"`.
+When present, inspect `scan_status` at both the root and entry level.
 
 **Cleanup history.** `mo history --json [--limit N]` (N is 1-200) prints
 `logs` (paths of the operations and deletions logs) plus `sessions[]` with
@@ -76,7 +109,8 @@ the user asked for; do not leave an unbounded monitor running in the background.
 
 - `mo clean` also sweeps leftovers from apps the user already deleted. It does
   not touch installed apps; that is `mo uninstall`.
-- `mo clean --external <path>` cleans macOS metadata off an external volume.
+- `mo clean --external <path>` cleans macOS metadata off an external volume;
+  it does not relocate caches or app data.
 - `mo purge` removes rebuildable project artifacts: local build output
   (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that need
   a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge
@@ -95,7 +129,8 @@ the user asked for; do not leave an unbounded monitor running in the background.
 
 **`mo clean` deletions are permanent by default.** Cache cleanup removes files
 rather than moving them to the Trash, so there is usually nothing to restore.
-That is exactly why rule 1 exists: the dry-run is the undo. `mo uninstall` is
+That is why rule 1 exists: exclude data during preview, before deletion.
+`mo uninstall` is
 the exception: it routes the app and its leftovers through the Trash, so an
 uninstalled app is recoverable until the Trash is emptied.
 
