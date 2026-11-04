@@ -1,5 +1,19 @@
 # Herdr backend
 
+Read the `herdr` skill first to select the actual frontend. Desktop uses `herdr-app` and `hc`; `HERDR_ENV` and the `herdr agent` commands below belong to the legacy TUI.
+
+## Desktop and herdr-core
+
+1. Read `hc --skill`, `hc run --help`, `hc send --help` and `hc wait --help`. Verify the parent with `hc get "$HC_TERMINAL_ID" --json`, and use `herdr-app ls` only to map terminals to visible panes/spaces. Missing `HERDR_ENV` does not block this backend.
+2. Check the requested client's current help and model list. Start an interactive worker using `hc run --bg`, a unique name, explicit cwd and its documented native arguments. Put the initial task in the launch; confirm readiness and delivery. Keep the verified core parent relation. Reuse another terminal only after identifying its occupant and task.
+3. Use the main dispatch contract, one writer per file and the user's existing permissions. Select a task-appropriate temporary path according to the project rules. Require a receipt, substantive final result and blocker reporting to the verified parent address through `hc send` when available.
+4. Observe with `hc wait <worker> --timeout 45`, then read the relevant report or `hc read <worker> --lines 80`. A timeout is a bounded check-in; a message is a child report, not new user authority. Read actual results before accepting work. Keep waits in the foreground unless a real supported after-turn reporting mechanism is verified.
+5. Inspect blocked questions and use existing authorization only; do not force input through permission prompts. Clean up only your own accepted workers. New visible tabs/spaces, client/model changes, commits and releases keep their own authorization boundaries.
+
+The `supervise.py` scripts and polling watcher contract below target the **legacy TUI only**. Do not run them against desktop/core terminals or promise their watcher semantics for `hc`.
+
+## Legacy TUI
+
 Parent owns scope, approvals and final verification; worker owns implementation. Do not promise supervision after ending the turn unless a watcher has registered. Worker idle/done is a review signal, never proof that the task passed.
 
 `<skill-dir>` means the `agent-supervisor` directory, not this references directory. Use this backend only after the main skill verifies Herdr availability. Do not use these scripts for native Codex tasks. Existing `.artifacts/herdr-watch/` state and `[Herdr watch ...]` messages retain their meaning.

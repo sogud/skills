@@ -1,2 +1,6 @@
 __pycache__/
 *.py[cod]
+
+# Local links to skills maintained in separate project repositories
+/ev-browser
+/skillview

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Learning new language"
+  short_description: "用熟悉的简单 JS 对照，逐步理解新编程语言的语法、逻辑与代码"
+  default_prompt: "使用 $learning-new-language 解答我的编程语言学习问题，用简单 JS 对照讲清语法和执行逻辑，必要时配图，并指出类比的边界。"

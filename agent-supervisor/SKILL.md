@@ -10,12 +10,12 @@ Supervisor owns scope, approvals and final verification; worker owns its assigne
 ## Select the backend and worker type
 
 1. Honor the user's named environment, worker or client first. Verify its actual identity and current work before sending anything; do not silently substitute a different client/model or repurpose an unrelated session.
-2. If no backend was specified, use Herdr when `HERDR_ENV=1` and the Herdr CLI is available. Otherwise, when the current Codex tools expose task/session coordination, use them directly. The word “Codex” alone does not prove desktop tools are available in a CLI/IDE session.
+2. If no backend was specified, prefer Herdr desktop/core when `HC_TERMINAL_ID` is set and `hc` is available; use the legacy TUI when `HERDR_ENV=1` and `herdr` is available. Read the `herdr` skill to verify the actual frontend. Otherwise, when the current Codex tools expose task/session coordination, use them directly. The word “Codex” alone does not prove desktop tools are available in a CLI/IDE session.
 3. Read only the selected backend reference:
 
 | Situation | Owner and next action |
 | --- | --- |
-| Herdr environment or a specifically requested Herdr worker | [Herdr backend](references/herdr.md); verify environment/CLI and pane/session identity, then use its watcher protocol |
+| Herdr environment or a specifically requested Herdr worker | [Herdr backend](references/herdr.md); verify the frontend and terminal identity, then use hc reporting/waits for desktop/core or the watcher protocol for legacy TUI |
 | Existing Codex task or ChatGPT conversation, or an explicitly requested new independent task/session | [Codex backend](references/codex.md); use native app task tools and actual returned IDs; ChatGPT conversations require the polling branch |
 | Explicit delegation of a bounded subtask within the current task, without requesting a separate task | Native subagent tools when available and allowed; keep the result in the current task, do not create a sidebar task |
 | Required backend/tool is unavailable | Report the missing capability; prepare the brief and continue independent authorized work. Do not install a framework, fake a watcher or silently switch clients |
@@ -47,7 +47,7 @@ Record backend-specific identities: Codex `threadId`/`hostId`, native subagent I
 ## Dispatch and supervise
 
 1. Verify worker readiness, identity and pending assignment. A busy worker doing unrelated work is not an available target to interrupt.
-2. Choose how progress will be observed before dispatch. Herdr must register its watcher before prompting; native Codex can wait in the current turn, or register a heartbeat for requested after-turn supervision as described in its reference.
+2. Choose how progress will be observed before dispatch. Herdr desktop/core uses a verified parent/child relation, reports and bounded `hc wait`; the legacy TUI must register its watcher before prompting. Native Codex can wait in the current turn, or register a heartbeat for requested after-turn supervision as described in its reference.
 3. Send the brief once. If submission is ambiguous, inspect the target for this assignment before retrying; do not send duplicate implementation prompts.
 4. Read compact progress first. Inspect the report and relevant current diff/runtime facts at a completed batch, scope question, reported failure or scheduled checkpoint; do not repeat every worker action or rerun valid checks on each poll.
 5. Normal progress means continue waiting. A timer alone does not justify another implementation prompt, build, repository scan or full transcript read.
