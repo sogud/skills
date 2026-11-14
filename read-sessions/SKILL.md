@@ -1,5 +1,5 @@
 ---
-name: read-session
+name: read-sessions
 description: 读取本机 Codex（JSONL/SQLite）、Claude、Qoder、Pi 会话，默认导出供 AI 分析的 JSONL（完整对话与工具索引），也可导出简版 Markdown；默认保存到用户下载目录。用于提取聊天数据、会话数量盘点、渐进式恢复上下文及按项目流程复盘。
 ---
 
